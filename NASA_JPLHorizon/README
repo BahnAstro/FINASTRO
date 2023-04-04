@@ -1,4 +1,24 @@
-Scripts in here requested data from NASA's JPL Horizon via astroquery.jplhorizons (https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html).
-You can also export data from https://ssd.jpl.nasa.gov/horizons/app.html#/ .
+Scripts in here requested data from NASA's JPL Horizon via astroquery.jplhorizons.
+You can also export data from https://ssd.jpl.nasa.gov/horizons/app.html#/ . 
+Tutorial on how to use JPL Horizon. https://ssd.jpl.nasa.gov/horizons/tutorial.html
 
-I have implemented 24 solar terms (24節氣） and western astrological zodiac signs（黃道12宮）into the script as well.
+Based on the Ecliptic Longitude of the Sun, I have implemented 24 solar terms (24節氣） and western astrological zodiac signs（黃道12宮）into the script.
+
+
+
+You can also access more NASA's data on your own. 
+
+JPL Horizon's Overview by NASA: 
+https://ssd.jpl.nasa.gov/horizons/manual.html#center
+
+
+Astroquery's JPL Horizon Documents:
+
+Source code for astroquery.jplhorizons.core
+https://astroquery.readthedocs.io/en/latest/_modules/astroquery/jplhorizons/core.html#HorizonsClass.ephemerides_async
+
+JPL Horizons Queries (astroquery.jplhorizons/astroquery.solarsystem.jpl.horizons)
+https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html#jplhorizons
+
+JPL Horizons Class
+https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#
