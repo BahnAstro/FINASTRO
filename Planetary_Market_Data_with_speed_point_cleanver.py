@@ -7,7 +7,8 @@ import csv
 import pandas as pd
 import math
 
-readdata1 = pd.read_csv("/Users/jacky/Desktop/HSI/DayHighLow/daily_high_low_2006_v3_1.csv", header=None, skiprows=1, names=['DateTime', 'Open', 'High', 'Low', 'Close', 'HL'], encoding='ISO-8859-1')
+#Replace your file name and location with "/Users/x.csv"
+readdata1 = pd.read_csv("/Users/x.csv", header=None, skiprows=1, names=['DateTime', 'Open', 'High', 'Low', 'Close', 'HL'], encoding='ISO-8859-1')
 
 
 # Convert time column to pandas datetime object
@@ -210,6 +211,6 @@ for idx, row in readdata1.iterrows():
     all_data.append(single_row_data)
 #print(all_data)
 export_all_data = pd.DataFrame(all_data)
-export_all_data.to_csv("/Users/jacky/Desktop/PLANET_ALLDATA_PERFECT_ERA2.csv", index=False)
+export_all_data.to_csv("/Users/y.csv", index=False) #Replace files' destination with "/Users/y.csv".
 
 
