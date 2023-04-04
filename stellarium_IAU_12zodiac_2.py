@@ -1,6 +1,7 @@
 import ephem
 import math
-import fabric
+from ephem import constellation
+
 
 # 設置日期和地點
 date = '2023/3/23 12:00:00'
@@ -19,7 +20,7 @@ obs.elevation = alt
 constellations = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpius', 'Ophiuchus', 'Sagittarius', 'Capricornus', 'Aquarius', 'Pisces']
 
 # 載入星座邊界數據庫文件
-ephem.constellation.load('path/to/constellationship.fab')
+ephem.constellation.load('skycultures/modern_sternenkarten/constellationship.fab')
 
 # 加載星座邊界數據庫
 constellation_boundaries = ephem.readdb('Stellarium:constellationship.fab')
