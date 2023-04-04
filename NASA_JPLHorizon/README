@@ -1,0 +1,4 @@
+Scripts in here requested data from NASA's JPL Horizon via astroquery.jplhorizons (https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html).
+You can also export data from https://ssd.jpl.nasa.gov/horizons/app.html#/ .
+
+I have implemented 24 solar terms (24節氣） and western astrological zodiac signs（黃道12宮）into the script as well.
