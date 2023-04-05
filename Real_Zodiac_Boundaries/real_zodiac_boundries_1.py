@@ -19,8 +19,8 @@ star_coords = [SkyCoord.from_name(name) for name in star_names]
 
 pairs = [(0, 1), (2, 3), (4, 5), (6, 7), (8, 9), (10, 11), (12, 13), (14, 15), (16, 17), (18, 19), (20, 21), (22, 23), (24, 25)]
 
-# Import time, location and elevation(height) from excel file
-data1 = pd.read_csv('/Users/x/Desktop/readdata/eqtest3.csv', names=['time', 'lat', 'lon', 'elevation'], skiprows=1, encoding='ISO-8859-1')
+# Import time, location and elevation(height) from excel file 
+data1 = pd.read_csv('/Users/x/Desktop/eqtest3.csv', names=['time', 'lat', 'lon', 'elevation'], skiprows=1, encoding='ISO-8859-1')
 
 # Define a list to store the results
 results = []
