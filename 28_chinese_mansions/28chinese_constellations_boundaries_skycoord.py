@@ -3,7 +3,7 @@ from astropy.coordinates import SkyCoord, BarycentricTrueEcliptic, EarthLocation
 from astropy import units as u
 from astropy.time import Time
 
-# 读取CSV文件
+# read CSV file to obtain 'time', 'lat', 'lon', 'elevation'
 data1 = pd.read_csv('/Users/x/Desktop/eqtest3.csv', names=['time', 'lat', 'lon', 'elevation'], skiprows=1, encoding='ISO-8859-1')
 
 mansion_boundaries = [
@@ -35,8 +35,8 @@ for index, row in data1.iterrows():
 
     for coord in mansion_boundaries_coords:
         ecl_coord = get_ecliptic_coordinates(coord.ra, coord.dec)
-        time_ecliptic_coords.extend([ecl_coord.lon.deg, ecl_coord.lat.deg])  # 将黄经和黄纬合并到一个列表中
-        time_radec_coords.extend([coord.ra.deg, coord.dec.deg])  # 将 RA 和 Dec 合并到一个列表中
+        time_ecliptic_coords.extend([ecl_coord.lon.deg, ecl_coord.lat.deg]) 
+        time_radec_coords.extend([coord.ra.deg, coord.dec.deg])  
 
     ecliptic_coords.append(time_ecliptic_coords)
     radec_coords.append(time_radec_coords)
