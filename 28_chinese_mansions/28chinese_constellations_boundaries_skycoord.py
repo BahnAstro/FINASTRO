@@ -49,4 +49,4 @@ output_data_radec = pd.DataFrame(radec_coords, columns=columns_radec)
 
 output_data = pd.concat([data1['time'], output_data_radec, output_data_ecl], axis=1)  # 将时间、RA、Dec 和黄经、黄纬数据合并
 
-output_data.to_csv('/Users/jacky/x/28mansions_result.csv', index=False)
+output_data.to_csv('/Users/x/28mansions_result.csv', index=False)
