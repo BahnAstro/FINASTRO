@@ -10,7 +10,6 @@ import math
 
 readdata1 = pd.read_csv("/Users/x/daily_high_low_2006_v3_1.csv", header=None, skiprows=1, names=['DateTime', 'Open', 'High', 'Low', 'Close', 'HL'], encoding='ISO-8859-1')
 
-
 # Convert time column to pandas datetime object
 time_pd = pd.to_datetime(readdata1['DateTime'], format='%Y-%m-%d %H:%M:%S')
 
@@ -34,6 +33,8 @@ all_data['Mansion_positions'] = None
 all_data['Mansion_degree'] = None
 all_data['Astronomy_boundary'] = None
 all_data['Astronomy_degree'] = None
+all_data['life_sign'] = None
+all_data['life_sign_degree'] = None
 
 
 # 循環處理每個從CSV輸入的時間
@@ -276,7 +277,7 @@ for idx, row in readdata1.iterrows():
             terms = [
         (315, 330, 'Beginning_of_Spring_立春'),
         (330, 345, 'First_month_midpoint_雨水'),
-        (345, 0, 'Second_month_midpoint_驚蟄'),
+        (345, 360, 'Second_month_midpoint_驚蟄'),
         (0, 15, 'Spring_Equinox_春分'),
         (15, 30, 'First_april_清明'),
         (30, 45, 'Second_april_穀雨'),
@@ -392,6 +393,7 @@ for idx, row in readdata1.iterrows():
                 if start <= ecl_lon < end:
                     degree = ecl_lon - start
                     return pd.Series([astroboundary, degree])
+    
 
     #all_data = pd.concat([all_data, single_row_data], ignore_index=True)
     
@@ -436,6 +438,32 @@ all_data_df[['Selena_LONG_Zodiac_signs', 'Selena_LONG_Zodiac_degree']] = all_dat
 all_data_df[['ASC_Zodiac_signs', 'ASC_Zodiac_degree']] = all_data_df['ASC'].apply(zodiac_sign)
 all_data_df[['MC_Zodiac_signs', 'MC_Zodiac_degree']] = all_data_df['MC'].apply(zodiac_sign)
 
+#命宮計算
+all_data_df['Life_sign'] = all_data_df['ASC_Zodiac_signs']
+all_data_df['Life_sign_degree'] = all_data_df['Sun_Zodiac_degree']
+
+# 定義一個函數，將黃道十二星座轉換為相對應的起始度數
+def zodiac_sign_to_starting_degree(zodiac_sign):
+    zodiac_degrees = {
+        "Aries_Fire": 0,
+        "Taurus_Metal": 30,
+        "Gemini_Water": 60,
+        "Cancer_Moon": 90,
+        "Leo_Sun": 120,
+        "Virgo_Water": 150,
+        "Libra_Metal": 180,
+        "Scorpio_Fire": 210,
+        "Sagittarius_Wood": 240,
+        "Capricorn_Earth": 270,
+        "Aquarius_Earth": 300,
+        "Pisces_Wood": 330
+    }
+    return zodiac_degrees[zodiac_sign]
+
+# 將命宮Life_sign轉換為起始度數，然後將其與Life_sign_degree相加以獲得360度制
+all_data_df['Life_degree'] = all_data_df['Life_sign'].apply(zodiac_sign_to_starting_degree) + all_data_df['Life_sign_degree']
+
+
 
 # 獲取行星所在的宮位和度數
 for planet, pos in planet_positions.items():
@@ -447,6 +475,10 @@ all_data_df[['Lilith_LON_Mansion_positions', 'Lilith_LON_Mansion_degree']] = all
 all_data_df[['Selena_LONG_Mansion_positions', 'Selena_LONG_Mansion_degree']] = all_data_df['Selena_LONG'].apply(mansion_position)
 all_data_df[['ASC_Mansion_positions', 'ASC_Mansion_degree']] = all_data_df['ASC'].apply(mansion_position)
 all_data_df[['MC_Mansion_positions', 'MC_Mansion_degree']] = all_data_df['MC'].apply(mansion_position)
+
+#將Life_degree轉換成命度
+all_data_df[['Life_Mansion_positions', 'Life_Mansion_degree']] = all_data_df['Life_degree'].apply(mansion_position)
+
 
 
 
@@ -460,8 +492,6 @@ all_data_df[['Lilith_LON_Astronomy_boundary', 'Lilith_LON_Astronomy_degree']] = 
 all_data_df[['Selena_LONG_Astronomy_boundary', 'Selena_LONG_Astronomy_degree']] = all_data_df['Selena_LONG'].apply(real_astronomy_boundaries)
 all_data_df[['ASC_Astronomy_boundary', 'ASC_Astronomy_degree']] = all_data_df['ASC'].apply(real_astronomy_boundaries)
 all_data_df[['MC_Astronomy_boundary', 'MC_Astronomy_degree']] = all_data_df['MC'].apply(real_astronomy_boundaries)
-
-
 
 #print(all_data)
 all_data_df.to_csv("/Users/x/PLANET_ALLDATA_PERFECT_POINTS.csv", index=False)
