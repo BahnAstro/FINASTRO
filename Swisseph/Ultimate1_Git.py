@@ -36,16 +36,14 @@ all_data['Astronomy_boundary'] = None
 all_data['Astronomy_degree'] = None
 
 
-# Iterate through each time input from the CSV file.
+# 循環處理每個從CSV輸入的時間
 all_data = []
 for idx, row in readdata1.iterrows():
 
     time_pd = row["DateTime"]
-
-    #Convert  utc date string to a pandas.Timestamp object and convert it to UTC time.
+    # 将日期字符串转换为 pandas.Timestamp 对象，并将其转换为 UTC 时间
     utc_date = pd.to_datetime(time_pd)
-    
-    #Caculate JD Time
+    #计算儒略日
     jd = swe.julday(utc_date.year, utc_date.month, utc_date.day, utc_date.hour + utc_date.minute / 60.0 + utc_date.second / 3600.0)
 
     def calc_asc_mc(latitude, longitude, utc_date):
@@ -74,7 +72,7 @@ for idx, row in readdata1.iterrows():
         'EQU_ASC' : equ_ascendant
 
         }
-       
+    
     # Define Planets
     planets = {
         "Sun": swe.SUN,
@@ -89,7 +87,7 @@ for idx, row in readdata1.iterrows():
         "Pluto": swe.PLUTO
     }
 
-    # Define Planet's Speed 定義行星的速度
+    #定義行星的速度 Define Planet's Speed
     speed_thresholds = {
     "STATIONARY": 0.1,
     "SLOW": 0.5,
@@ -158,9 +156,9 @@ for idx, row in readdata1.iterrows():
         ra = equ_1[0]
         dec = equ_1[1]
 
-        speed = ecl_l[3]  # Speed of Planets
+        speed = ecl_l[3]  # 提取行星速度
 
-        speed_type = get_speed_type(speed, jd, name, planet)   # Speed Type of Planets
+        speed_type = get_speed_type(speed, jd, name, planet)  # 获取行星速度类型
 
         single_row_data.update({
             f"{name}_SPEED": speed,
@@ -177,6 +175,43 @@ for idx, row in readdata1.iterrows():
 
         #print(f"{name}_ELONG:", elong), print(f"{name}_ELAT:", elat),print(f"{name}_RA:", ra),print(f"{name}_DEC:", dec)
 
+    sun_long = single_row_data["Sun_ELONG"]
+    moon_long = single_row_data["Moon_ELONG"]
+    
+    def calculate_fortune(ascendant, sun_long, moon_long, utc_date, latitude, longitude):
+        jd = swe.utc_to_jd(utc_date.year, utc_date.month, utc_date.day, utc_date.hour, utc_date.minute, utc_date.second, swe.GREG_CAL)[1]
+
+        geopos = (longitude, latitude, 0)
+        # Calculate sunrise and sunset times using swe_rise_trans
+        rise_flags = swe.CALC_RISE | swe.BIT_DISC_CENTER
+        set_flags = swe.CALC_SET | swe.BIT_DISC_CENTER
+        atpress = 0
+        attemp = 0
+        flags = 0
+
+    
+        res_sunrise = swe.rise_trans(jd, swe.SUN, 0, rise_flags, *geopos)
+        res_sunset = swe.rise_trans(jd, swe.SUN, 0, set_flags, *geopos)
+
+        jd_sunrise = res_sunrise[1][0]
+        jd_sunset = res_sunset[1][0]
+
+        # Check if the current time is between sunrise and sunset
+        is_daytime = jd_sunrise <= jd and jd < jd_sunset
+
+        # Calculate fortune point based on daytime or nighttime
+        if is_daytime:
+            fortune_long = ascendant + moon_long - sun_long
+        else:
+            fortune_long = ascendant + sun_long - moon_long
+
+        fortune_long = fortune_long % 360
+
+        return fortune_long
+
+    fortune_long = calculate_fortune(ascendant, sun_long, moon_long , utc_date, latitude, longitude)
+
+    single_row_data.update({ "Part_of_Fortune": fortune_long })
 
     # Calculate Moon's South Node, North Node and Lilith (Moon's Apogee) 计算月球北交点、南交点和莉莉丝
     moon_nodes, ret = swe.calc_ut(jd, swe.MEAN_NODE)
@@ -311,8 +346,8 @@ for idx, row in readdata1.iterrows():
         (311.7193257, 323.3911983): '女宿_Girl_Earth',
         (323.3911983, 333.348599): '虚宿_Emptiness_Sun',
         (333.348599, 353.481734): '危宿_Rooftop_Moon',
-        (353.481734, 359.9999999): '室宿_Encampment_Fire_to360',
-        (0, 9.152166707): '室宿0後_Encampment_Fire_from0',
+        (353.481734, 359.9999999): '室宿0前_Encampment_Fire',
+        (0, 9.152166707): '室宿0後_Encampment_Fire',
         (9.152166707, 22.37214699): '壁宿_Wail_Water',
         (22.37214699, 33.96614257): '奎宿_Legs_Wood',
         (33.96614257, 46.93116249): '婁宿_Bond_Metal',
@@ -381,12 +416,16 @@ planet_positions = {
         'Pluto': 'Pluto_ELONG',
         }
 
-# Obtain 24 Solar Terms
+#additional_points = [
+#    'Moon_North_Node_LON',
+##    'Moon_South_Node_LON',
+#   'Lilith_LON',
 
-all_data_df['24_solar_terms'] = all_data_df['Sun_ELONG'].apply(solar_terms)
+
+all_data_df['Sun_solar_term'] = all_data_df['Sun_ELONG'].apply(solar_terms)
 
 
-# Obtain Planet and Extra Stars and Extra Points Ecliptic Longitude's Zodiac Signs and Zodiac Degree 獲取行星及虛星、虛點的黃經所在的星座和星座度數
+# 獲取行星黃經所在的星座和星座度數
 for planet, pos in planet_positions.items():
     all_data_df[[f"{planet}_Zodiac_signs", f"{planet}_Zodiac_degree"]] = all_data_df[pos].apply(zodiac_sign).apply(pd.Series)
 
@@ -397,7 +436,8 @@ all_data_df[['Selena_LONG_Zodiac_signs', 'Selena_LONG_Zodiac_degree']] = all_dat
 all_data_df[['ASC_Zodiac_signs', 'ASC_Zodiac_degree']] = all_data_df['ASC'].apply(zodiac_sign)
 all_data_df[['MC_Zodiac_signs', 'MC_Zodiac_degree']] = all_data_df['MC'].apply(zodiac_sign)
 
-# Obtain Planet and Extra Stars and Extra Points Ecliptic Longitude's Mansion positions and Mansion Degree 獲取行星及虛星、虛點的黃經所在的宮位和度數
+
+# 獲取行星所在的宮位和度數
 for planet, pos in planet_positions.items():
     all_data_df[[f"{planet}_Mansion_positions", f"{planet}_Mansion_degree"]] = all_data_df[pos].apply(mansion_position)
 
@@ -409,7 +449,8 @@ all_data_df[['ASC_Mansion_positions', 'ASC_Mansion_degree']] = all_data_df['ASC'
 all_data_df[['MC_Mansion_positions', 'MC_Mansion_degree']] = all_data_df['MC'].apply(mansion_position)
 
 
-# Obtain Planet and Extra Stars and Extra Points Ecliptic Longitude's Astronomy boundary and Astronomy Degree 獲取行星及虛星、虛點的黃經所在的所在的天文區域和度數
+
+# 獲取行星所在的區域和度數
 for planet, pos in planet_positions.items():
     all_data_df[[f"{planet}_Astronomy_boundary", f"{planet}_Astronomy_degree"]] = all_data_df[pos].apply(real_astronomy_boundaries)
 
@@ -421,7 +462,8 @@ all_data_df[['ASC_Astronomy_boundary', 'ASC_Astronomy_degree']] = all_data_df['A
 all_data_df[['MC_Astronomy_boundary', 'MC_Astronomy_degree']] = all_data_df['MC'].apply(real_astronomy_boundaries)
 
 
-#Export Data to CSV file
-all_data_df.to_csv("/Users/x/PLANET_Ultimate_1.csv", index=False)
+
+#print(all_data)
+all_data_df.to_csv("/Users/x/PLANET_ALLDATA_PERFECT_POINTS.csv", index=False)
 
 
