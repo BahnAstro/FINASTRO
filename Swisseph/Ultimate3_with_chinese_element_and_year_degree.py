@@ -184,27 +184,6 @@ for idx, row in readdata1.iterrows():
         'Year_Degree': year_degree,
     })
 
-    #all_data.append(single_row_data)
-    #def compute_year_degree(dt, start_of_year):
-    #    year = dt.year
-    #    key2 = f"Year_{year}"
-    #    if key2 not in year_degrees:
-    #        return "NA"
-    #    start_degree, end_degree = year_degrees[key2]
-    #    total_seconds = (dt - datetime(utc_date.year, utc_date.month, utc_date.day, utc_date.hour, utc_date.minute)).total_seconds()
-    #    total_minutes = total_seconds // 60
-    #    degree_range = start_degree - end_degree
-    #    year_minutes = (365 if year % 4 != 0 else 366) * 24 * 60
-    #    degree_change = total_minutes * degree_range / year_minutes
-    #    return end_degree + degree_change
-
-        #print('degree_change', degree_change)
-
-    #year_degree = compute_year_degree(utc_date, utc_date)
-   # all_data.append[idx, 'Year_Degree'] = year_degree
-
-   # single_row_data = {'Year_Degree' :year_degree}
-
 
     def calc_asc_mc(latitude, longitude, utc_date):
         cusps, ascmc = swe.houses(jd, latitude, longitude, b'P')
@@ -217,7 +196,7 @@ for idx, row in readdata1.iterrows():
         return ascendant, midheaven, descendant, imum_coeli, equ_ascendant
     
     ascendant, midheaven, descendant, imum_coeli, equ_ascendant = calc_asc_mc(latitude, longitude, utc_date)
-#'Year_Degree' :year_degree, 
+#
     single_row_data.update({
         'Time': utc_date,
         'Open': row['Open'],
@@ -602,7 +581,6 @@ all_data_df[['Lilith_LON_Zodiac_signs', 'Lilith_LON_Zodiac_degree']] = all_data_
 all_data_df[['Selena_LONG_Zodiac_signs', 'Selena_LONG_Zodiac_degree']] = all_data_df['Selena_LONG'].apply(zodiac_sign)
 all_data_df[['ASC_Zodiac_signs', 'ASC_Zodiac_degree']] = all_data_df['ASC'].apply(zodiac_sign)
 all_data_df[['MC_Zodiac_signs', 'MC_Zodiac_degree']] = all_data_df['MC'].apply(zodiac_sign)
-all_data_df[['Year_Zodiac_signs', 'Year_Zodiac_degree']] = all_data_df['Year_Degree'].apply(zodiac_sign)
 
 
 #命宮計算
@@ -647,7 +625,6 @@ all_data_df[['Lilith_LON_Mansion_positions', 'Lilith_LON_Mansion_degree']] = all
 all_data_df[['Selena_LONG_Mansion_positions', 'Selena_LONG_Mansion_degree']] = all_data_df['Selena_LONG'].apply(mansion_position)
 all_data_df[['ASC_Mansion_positions', 'ASC_Mansion_degree']] = all_data_df['ASC'].apply(mansion_position)
 all_data_df[['MC_Mansion_positions', 'MC_Mansion_degree']] = all_data_df['MC'].apply(mansion_position)
-all_data_df[['Year_Mansion_positions', 'Year_Mansion_degree']] = all_data_df['Year_Degree'].apply(mansion_position)
 
 
 
