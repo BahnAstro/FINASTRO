@@ -130,29 +130,7 @@ for idx, row in readdata1.iterrows():
     '忌': a.badThing,
     '時辰經絡': a.meridians
     })
-    #dic['DateTime'] = datetime_obj  # 添加DateTime到字典中
 
-    #results.append(dic)
-
-    #def compute_year_degree(dt, start_of_year):
-    #    year = dt.year
-    #    key2 = f"Year_{year}"
-    #    if key2 not in year_degrees:
-    #        return "NA"
-    #    start_degree, end_degree = year_degrees[key2]
-    #    total_seconds = (dt - datetime(utc_date.year, utc_date.month, utc_date.day, utc_date.hour, utc_date.minute)).total_seconds()
-    #    total_minutes = total_seconds // 60
-    #    degree_range = start_degree - end_degree
-    #    year_minutes = (365 if year % 4 != 0 else 366) * 24 * 60
-    #    degree_change = total_minutes * degree_range / year_minutes
-    #    return end_degree + degree_change
-
-        #print('degree_change', degree_change)
-
-    #year_degree = compute_year_degree(utc_date, utc_date)
-   # all_data.append[idx, 'Year_Degree'] = year_degree
-
-   # single_row_data = {'Year_Degree' :year_degree}
 
 
     def calc_asc_mc(latitude, longitude, utc_date):
