@@ -9,7 +9,6 @@ import math
 import cnlunar
 from lunar_python import LunarYear
 
-#from astropy.coordinates import SkyCoord, EarthLocation, BarycentricTrueEcliptic
 
 readdata1 = pd.read_csv("/Users/x/daily_high_low_2006_v4_1.csv", header=None, skiprows=1, names=['DateTime', 'Open', 'High', 'Low', 'Close', 'HL'], encoding='ISO-8859-1')
 
@@ -40,7 +39,6 @@ all_data['Astronomy_degree'] = None
 all_data['life_sign'] = None
 all_data['life_sign_degree'] = None
 all_data['Year_Degree'] = None
-#all_data["Year_Degree"] = "NA"
 
 
 # 循環處理每個從CSV輸入的時間
@@ -71,10 +69,6 @@ year_degrees = {
     "Year_2023": [180.4, 176.166666667]
     }
 
-#time_pd = row["DateTime"]
-#utc_date = pd.to_datetime(time_pd)
-
-
 
 def get_monthly_element(lunar_month):
     if lunar_month in [1, 2]:
@@ -91,7 +85,7 @@ def get_monthly_element(lunar_month):
 def calculate_year_degree(lunar_year, lunar_month, lunar_day, is_leap_month, year_degrees):
     year_key = f"Year_{lunar_year}"
     if year_key not in year_degrees:
-        return "NA"
+        return 330
 
     lunarYear = LunarYear.fromYear(lunar_year)
     day_count = lunarYear.getDayCount()
@@ -125,7 +119,6 @@ for idx, row in readdata1.iterrows():
     #Chinese elements
 
     datetime_obj_utc = utc_date  # 將帶時區的日期轉換為不帶時區的日期
-    #datetime_obj_shanghai = utc_date.to_pydatetime().astimezone(timezone(timedelta(hours=8))).replace(tzinfo=None)
     datetime_obj_shanghai = utc_date.to_pydatetime().replace(tzinfo=timezone.utc).astimezone(timezone(timedelta(hours=8))).replace(tzinfo=None)
     a = cnlunar.Lunar(datetime_obj_shanghai, godType='8char')
    
@@ -173,11 +166,7 @@ for idx, row in readdata1.iterrows():
     '忌': a.badThing,
     '時辰經絡': a.meridians
     })
-    #dic['DateTime'] = datetime_obj  # 添加DateTime到字典中
 
-    #results.append(dic)
-    #year_degree = get_year_degree(year_degrees, a.lunarYear, a.lunarMonth, a.lunarDay, a.isLunarLeapMonth)
-    
     year_degree = calculate_year_degree(a.lunarYear, a.lunarMonth, a.lunarDay, a.isLunarLeapMonth, year_degrees)
 
     single_row_data.update({
@@ -196,7 +185,7 @@ for idx, row in readdata1.iterrows():
         return ascendant, midheaven, descendant, imum_coeli, equ_ascendant
     
     ascendant, midheaven, descendant, imum_coeli, equ_ascendant = calc_asc_mc(latitude, longitude, utc_date)
-#
+
     single_row_data.update({
         'Time': utc_date,
         'Open': row['Open'],
@@ -393,7 +382,6 @@ for idx, row in readdata1.iterrows():
     #selena_lat = 0  # Assume that Selena is on Ecliptic’s Latitude 假设 Selena 在黄道平面上
     #selena_ra, selena_dec = ecl2equ(jd, selena_long, selena_lat)
 
-     
     single_row_data.update({
         "Moon_North_Node_LON": moon_north_node_lon,
         "Moon_South_Node_LON": moon_south_node_lon,
@@ -406,8 +394,6 @@ for idx, row in readdata1.iterrows():
         })
 
     all_data.append(single_row_data) 
-
-    #all_data.append([single_row_data], ignore_index=True) 
 
 # 24 Solar Terms
     def solar_terms(ecl_lon):
@@ -466,7 +452,7 @@ for idx, row in readdata1.iterrows():
         (330, 360): 'Pisces_Wood'
         }
             for (start, end), sign in signs.items():
-                if start <= ecl_lon < end:
+                if start <= ecl_lon and ecl_lon < end:
                     degree = ecl_lon - start
                     return pd.Series([sign, degree])
             return None
@@ -505,7 +491,7 @@ for idx, row in readdata1.iterrows():
 	    (190.7217613, 203.8374893): '軫宿_Chariot_Water'
         }
             for (start, end), position in positions.items():
-                if start <= ecl_lon < end:
+                if start <= ecl_lon and ecl_lon < end:
                     degree = ecl_lon - start
                     return pd.Series([position, degree])
             return pd.Series(['Unknown', 0])
@@ -529,19 +515,15 @@ for idx, row in readdata1.iterrows():
             (0.0, 29.990947097601): 'RealAqr_真水瓶from0'
             }
             for (start, end), astroboundary in astroboundaries.items():
-                if start <= ecl_lon < end:
+                if start <= ecl_lon and ecl_lon < end:
                     degree = ecl_lon - start
                     return pd.Series([astroboundary, degree])
-    
 
-    #all_data = pd.concat([all_data, single_row_data], ignore_index=True)
-    
     all_data_df = pd.DataFrame(all_data)
     print(all_data_df.columns)
 
 
 # Add solar terms, zodiac signs and zodiac degree to the DataFrame
-
 # Acquire all the planet's Zodiac signs and degree, Mansion positions and degree, Astronomy boundaries and degree
 # Zodiac signs and degree are Wetern Astrology‘s Whole House System, and Astronomy boundaries are the actual boundaries, I use midpoint of 2 stars to define the actual boundaries
 planet_positions = {
@@ -565,10 +547,6 @@ planet_positions = {
 #24節氣
 all_data_df['Sun_solar_term'] = all_data_df['Sun_ELONG'].apply(solar_terms)
 
-#洞微大限
-#all_data_df['Year_Degree'] = all_data_df.apply(compute_year_degree)
-
-#all_data_df['Year_Degree'] = all_data_df['DateTime'].apply(compute_year_degree)
 
 
 # 獲取行星黃經所在的星座和星座度數
@@ -581,6 +559,7 @@ all_data_df[['Lilith_LON_Zodiac_signs', 'Lilith_LON_Zodiac_degree']] = all_data_
 all_data_df[['Selena_LONG_Zodiac_signs', 'Selena_LONG_Zodiac_degree']] = all_data_df['Selena_LONG'].apply(zodiac_sign)
 all_data_df[['ASC_Zodiac_signs', 'ASC_Zodiac_degree']] = all_data_df['ASC'].apply(zodiac_sign)
 all_data_df[['MC_Zodiac_signs', 'MC_Zodiac_degree']] = all_data_df['MC'].apply(zodiac_sign)
+all_data_df[['Year_Zodiac_signs', 'Year_Zodiac_degree']] = all_data_df['Year_Degree'].apply(zodiac_sign)
 
 
 #命宮計算
@@ -604,15 +583,10 @@ def zodiac_sign_to_starting_degree(zodiac_sign):
         "Pisces_Wood": 330
     }
     return zodiac_degrees[zodiac_sign]
-
-    
+  
 
 # 將命宮Life_sign轉換為起始度數，然後將其與Life_sign_degree相加以獲得360度制
 all_data_df['Life_degree'] = all_data_df['Life_sign'].apply(zodiac_sign_to_starting_degree) + all_data_df['Life_sign_degree']
-
-
-
-
 
 # 獲取行星所在的宮位和度數
 for planet, pos in planet_positions.items():
@@ -625,13 +599,11 @@ all_data_df[['Lilith_LON_Mansion_positions', 'Lilith_LON_Mansion_degree']] = all
 all_data_df[['Selena_LONG_Mansion_positions', 'Selena_LONG_Mansion_degree']] = all_data_df['Selena_LONG'].apply(mansion_position)
 all_data_df[['ASC_Mansion_positions', 'ASC_Mansion_degree']] = all_data_df['ASC'].apply(mansion_position)
 all_data_df[['MC_Mansion_positions', 'MC_Mansion_degree']] = all_data_df['MC'].apply(mansion_position)
-
+all_data_df[['Year_Mansion_positions', 'Year_Mansion_degree']] = all_data_df['Year_Degree'].apply(mansion_position)
 
 
 #將Life_degree轉換成命度
 all_data_df[['Life_Mansion_positions', 'Life_Mansion_degree']] = all_data_df['Life_degree'].apply(mansion_position)
-
-
 
 
 # 獲取行星所在的區域和度數
@@ -645,9 +617,7 @@ all_data_df[['Selena_LONG_Astronomy_boundary', 'Selena_LONG_Astronomy_degree']] 
 all_data_df[['ASC_Astronomy_boundary', 'ASC_Astronomy_degree']] = all_data_df['ASC'].apply(real_astronomy_boundaries)
 all_data_df[['MC_Astronomy_boundary', 'MC_Astronomy_degree']] = all_data_df['MC'].apply(real_astronomy_boundaries)
 
-
-
 #print(all_data)
-all_data_df.to_csv("/Users/x/PLANET_ALLDATA_PERFECT_LPS_Year2006_1.csv", index=False)
+all_data_df.to_csv("/Users/x/PLANET_ALLDATA_PERFECT_Year_2006.csv", index=False)
 
 
