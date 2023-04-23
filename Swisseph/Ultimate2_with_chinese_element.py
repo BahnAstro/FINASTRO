@@ -144,7 +144,8 @@ for idx, row in readdata1.iterrows():
         return ascendant, midheaven, descendant, imum_coeli, equ_ascendant
     
     ascendant, midheaven, descendant, imum_coeli, equ_ascendant = calc_asc_mc(latitude, longitude, utc_date)
-#'Year_Degree' :year_degree, 
+
+
     single_row_data.update({
         'Time': utc_date,
         'Open': row['Open'],
