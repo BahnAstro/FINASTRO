@@ -131,42 +131,10 @@ for idx, row in readdata1.iterrows():
     'Type': row['Type'],
     '農曆數字': (a.lunarYear, a.lunarMonth, a.lunarDay, '闰' if a.isLunarLeapMonth else ''),
     '農曆': '%s %s[%s]年 %s%s' % (a.lunarYearCn, a.year8Char, a.chineseYearZodiac, a.lunarMonthCn, a.lunarDayCn),
-    #'當令': monthly_element,
-    '星期': a.weekDayCn,
-    # 未增加除夕
-    #'今日節日': (a.get_legalHolidays(), a.get_otherHolidays(), a.get_otherLunarHolidays()),
-    #'八字': ' '.join([a.year8Char, a.month8Char, a.day8Char, a.twohour8Char]),
     '今日節氣': a.todaySolarTerms,
-    #'下一節氣': (a.nextSolarTerm, a.nextSolarTermDate, a.nextSolarTermYear),
-    #'今年節氣表': a.thisYearSolarTermsDic,
-    #'季節': a.lunarSeason,
-
-    #'今日時辰': a.twohour8CharList,
-    #'時辰凶吉': a.get_twohourLuckyList(),
-    #'生肖冲煞': a.chineseZodiacClash,
-    #'星座': a.starZodiac,
-    #'星次': a.todayEastZodiac,
-
-    #'彭祖百忌': a.get_pengTaboo(),
-    #'彭祖百忌精簡': a.get_pengTaboo(long=4, delimit='<br>'),
-    #'十二神': a.get_today12DayOfficer(),
-    #'廿八宿': a.get_the28Stars(),
-
-    #'今日三合': a.zodiacMark3List,
-    #'今日六合': a.zodiacMark6,
     '今日五行': a.get_today5Elements(),
-
     '纳音': a.get_nayin(),
-    #'九宫飛星': a.get_the9FlyStar(),
-    #'吉神方位': a.get_luckyGodsDirection(),
-    #'今日胎神': a.get_fetalGod(),
-    #'神煞宜忌': a.angelDemon,
-    #'今日吉神': a.goodGodName,
-    #'今日凶煞': a.badGodName,
-    #'宜忌等第': a.todayLevelName,
-    #'宜': a.goodThing,
-    #'忌': a.badThing,
-    #'時辰經絡': a.meridians
+
     })
 
     year_degree = calculate_year_degree(a.lunarYear, a.lunarMonth, a.lunarDay, a.isLunarLeapMonth, year_degrees)
@@ -500,30 +468,30 @@ for idx, row in readdata1.iterrows():
         (203.8374893, 214.4898543): '角宿_Horn_Wood',
         (214.4898543, 225.0215638): '亢宿_Neck_Metal',
         (225.0215638, 242.9360091): '氐宿_Root_Earth',
-        (242.9360091, 249.7584245): '房宿_Room_Sun',
-        (249.7584245, 256.1517382): '心宿_Heart_Moon',
+        (242.9360091, 249.7584245): '房宿_Room_Sun_element',
+        (249.7584245, 256.1517382): '心宿_Heart_Moon_element',
         (256.1517382, 271.2575671): '尾宿_Tail_Fire',
         (271.2575671, 280.1774751): '箕宿_Winnowing_Basket_Water',
-        (280.1774751, 304.0435179): '斗宿_DipperWood',
+        (280.1774751, 304.0435179): '斗宿_Dipper_Wood',
         (304.0435179, 311.7193257): '牛宿_Ox_Metal',
         (311.7193257, 323.3911983): '女宿_Girl_Earth',
-        (323.3911983, 333.348599): '虚宿_Emptiness_Sun',
-        (333.348599, 353.481734): '危宿_Rooftop_Moon',
+        (323.3911983, 333.348599): '虚宿_Emptiness_Sun_element',
+        (333.348599, 353.481734): '危宿_Rooftop_Moon_element',
         (353.481734, 359.9999999): '室宿0前_Encampment_Fire',
         (0, 9.152166707): '室宿0後_Encampment_Fire',
         (9.152166707, 22.37214699): '壁宿_Wail_Water',
         (22.37214699, 33.96614257): '奎宿_Legs_Wood',
         (33.96614257, 46.93116249): '婁宿_Bond_Metal',
         (46.93116249, 59.40804317): '胃宿_Stomach_Earth',
-        (59.40804317, 68.46117549): '昴宿_Hairy_Head_Sun',
-        (68.46117549, 83.70296314): '畢宿_Net_Moon',
+        (59.40804317, 68.46117549): '昴宿_Hairy_Head_Sun_element',
+        (68.46117549, 83.70296314): '畢宿_Net_Moon_element',
         (83.70296314, 84.67745824): '觜宿_Turtle_Beak_Fire',
         (84.67745824, 95.29802279): '参宿_Three_Stars_Water',
         (95.29802279, 125.7245614): '井宿_Well_Wood',
         (125.7245614, 130.3004766): '鬼宿_Ghost_Metal',
         (130.3004766, 147.275341): '柳宿_Willow_Earth',
-        (147.275341, 155.6873952): '星宿_Star_Sun',
-        (155.6873952, 173.6855706): '張宿_Extended_Net_Moon',
+        (147.275341, 155.6873952): '星宿_Star_Sun_element',
+        (155.6873952, 173.6855706): '張宿_Extended_Net_Moon_element',
         (173.6855706, 190.7217613): '翼宿_Wings_Fire',
 	    (190.7217613, 203.8374893): '軫宿_Chariot_Water'
         }
@@ -667,6 +635,6 @@ all_data_df[['MC_Astronomy_boundary', 'MC_Astronomy_degree']] = all_data_df['MC'
 
 
 #print(all_data)
-all_data_df.to_csv("/Users/x/PLANET_ALLDATA_PERFECT_WUXING_Y2006to2023.csv", index=False)
+all_data_df.to_csv("/Users/x/PLANET_ALLDATA_PERFECT_WXING_Y2006to2023.csv", index=False)
 
 
