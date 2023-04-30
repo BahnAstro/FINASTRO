@@ -11,11 +11,9 @@ moon_phases_angles = [0, 45, 90, 135, 180, -135, -90, -45]
 
 moon_phase_tolerance = 3
 
-
-
 # 需要比較的列名
 numerical_columns_to_compare = ['Year_Degree', 'Life_degree', 'Sun_ELONG', 'Moon_ELONG', 'Mercury_ELONG', 'Venus_ELONG', 'Mars_ELONG', 'Saturn_ELONG',
-                                'Jupiter_ELONG', 'Uranus_ELONG', 'Pluto_ELONG', 'Neptune_ELONG', 'Lilith_ELONG', 'Selena_ELONG',
+                                'Jupiter_ELONG', 'Lilith_ELONG', 'Selena_ELONG',
                                 'Moon_South_Node_ELONG', 'Moon_North_Node_ELONG', 'ASC', 'MC', 'Part_of_Fortune']
 
 
@@ -26,10 +24,12 @@ string_columns_to_compare = ['旺', 'Mars_ELONG_Mansion_positions', 'Mars_ELONG_
                              'Moon_North_Node_ELONG_Zodiac_signs', 'Lilith_ELONG_Mansion_positions', 'Lilith_ELONG_Zodiac_signs',
                              'Selena_ELONG_Mansion_positions', 'Selena_ELONG_Zodiac_signs']
 
-
-
 # 儲存結果的字典
 results = defaultdict(lambda: defaultdict(str))
+
+aspects_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+
+conjunction_results = defaultdict(lambda: defaultdict(str))
 
 element_yunu_counts_row = defaultdict(lambda: defaultdict(int))
 
@@ -108,6 +108,10 @@ for i, current_row in df.iterrows():
                                 suffix = "minus" if difference < angle else "plus"
                                 key = f"Current_{current_col}_vs_Current_{current_col_1}_{angle}_{suffix}_{abs(angle - difference)}"
                                 results[current_row['Time']][f"{current_col}_vs_{current_col_1}_aspects"] += key + "; "
+                            # 如果是合相（angle == 0），将结果存储在 conjunction_results 字典中
+                                if angle == 0:
+                                    conjunction_results[current_row['Time']][f"{birth_col}_vs_{current_col}_conjunction"] += key + "; "
+
 
         # 餘奴方法
         for birth_col, current_col, element, yunu_guard, yunu_offend in [('Lilith_ELONG', 'Mercury_ELONG', 'Water', "餘奴護主", "餘奴犯主"),
@@ -196,35 +200,21 @@ for i, current_row in df.iterrows():
                 results[current_row['Time']][f"{element}_yunu_guard_count"] = float(yunu_guard_count)
                 results[current_row['Time']][f"{element}_yunu_offend_count"] = float(yunu_offend_count)
 
-# Count aspects occurrences
-aspects_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+
+
+
+# Count aspects occurrences and conjunctions
+aspects_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
+conjunction_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
 
 for time, time_data in results.items():
     for aspect_key, aspect_data in time_data.items():
         if aspect_key.endswith("_aspects"):
             for aspect in aspect_data.split("; "):
-                if aspect and not aspects_counts[time][aspect_key][aspect]:
-                    aspects_counts[time][aspect_key][aspect] += 1
-
-# Count aspects occurrences
-aspects_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-
-for time, time_data in results.items():
-    for aspect_key, aspect_data in time_data.items():
-        if aspect_key.endswith("_aspects"):
-            for aspect in aspect_data.split("; "):
-                if aspect and not aspects_counts[time][aspect_key][aspect]:
-                    aspects_counts[time][aspect_key][aspect] += 1
-
-# Count aspects occurrences
-aspects_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-
-for time, time_data in results.items():
-    for aspect_key, aspect_data in time_data.items():
-        if aspect_key.endswith("_aspects"):
-            for aspect in aspect_data.split("; "):
-                if aspect:
-                    aspects_counts[time][aspect_key][aspect] += 1
+                if aspect and aspect not in aspects_counts[time][aspect_key][aspect]:
+                    aspects_counts[time][aspect_key][aspect].add(aspect)
+                    if aspect.endswith("_conjunction"):
+                        conjunction_counts[time][aspect_key].add(aspect)
 
 # Remove duplicates and add counts to results dictionary
 for time, time_data in results.items():
@@ -240,24 +230,34 @@ for time, time_data in results.items():
         results[time][aspect_key] = unique_aspects_str
 
         # Add counts to results
-        count_key = aspect_key.replace("_aspects", "_Count")
-        aspect_count = float(sum(aspects_counts[time][aspect_key].values()))
+        count_key = aspect_key.replace("_aspects", "_apsects_Count")
+        aspect_count = float(len(aspects_counts[time][aspect_key]))
         results[time][count_key] = aspect_count
 
-    # Set all empty _Count values to 0.0
-    for key in results[time]:
-        if key.endswith("_Count") and results[time][key] == "":
-            results[time][key] = 0.0
+        # Add conjunction counts to results
+        conjunction_count_key = aspect_key.replace("_aspects", "_conjunction_count")
+        conjunction_count = float(len(conjunction_counts[time][aspect_key]))
+        results[time][conjunction_count_key] = conjunction_count
+
 
 # 將結果轉換為DataFrame並輸出為CSV文件
 results_df = pd.DataFrame.from_dict(results, orient='index')
 results_df.reset_index(inplace=True)
 results_df.rename(columns={'index': 'Time'}, inplace=True)
 
-# 按照 Time 列对结果进行排序
-results_df['Time'] = pd.to_datetime(results_df['Time'])
-results_df.sort_values(by='Time', inplace=True)
+# 將 conjunction_results 轉換為 DataFrame
+conjunction_df = pd.DataFrame.from_dict(conjunction_results, orient='index')
+conjunction_df.reset_index(inplace=True)
+conjunction_df.rename(columns={'index': 'Time'}, inplace=True)
 
+# 合併兩個 DataFrame
+combined_df = pd.concat([results_df, conjunction_df], ignore_index=True)
+
+# 按照 Time 列对结果进行排序
+combined_df['Time'] = pd.to_datetime(combined_df['Time'])
+combined_df.sort_values(by='Time', inplace=True)
 
 # 保存结果到 CSV 文件
-results_df.to_csv('/Users/x/aspects_results_2006to2023.csv', index=False)
+#print(combined_df)
+
+combined_df.to_csv('/Users/x/aspects_results_2006to2023.csv', index=False)
