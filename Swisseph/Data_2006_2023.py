@@ -422,8 +422,8 @@ for idx, row in readdata1.iterrows():
         (0, 30): 'Aries_Fire', 
         (30, 60): 'Taurus_Metal', 
         (60, 90): 'Gemini_Water', 
-        (90, 120): 'Cancer_Moon_element', 
-        (120, 150): 'Leo_Sun_element', 
+        (90, 120): 'Cancer_Moon', 
+        (120, 150): 'Leo_Sun', 
         (150, 180): 'Virgo_Water', 
         (180, 210): 'Libra_Metal', 
         (210, 240): 'Scorpio_Fire',
@@ -490,13 +490,6 @@ for idx, row in readdata1.iterrows():
                             return pd.Series([position, degree, element])
             return pd.Series(['Unknown', 0, 'Unknown'])
 
- #           for (start, end), position in positions.items():
- #               if start <= ecl_lon and ecl_lon < end:
- #                   degree = ecl_lon - start
- #                   return pd.Series([position, degree])
- #           return pd.Series(['Unknown', 0])
-
-
 
 # Real 13 Astronomy Zodiac Boundaries
     def  real_astronomy_boundaries(ecl_lon): 
@@ -555,19 +548,23 @@ all_data_df['死'] = all_data_df['Elements'].apply(lambda x: x[4])
 # 刪除Elements列，因為我們已經將其拆分為單獨的列
 all_data_df.drop('Elements', axis=1, inplace=True)
 
-# 獲取行星黃經所在的星座和星座度數
-for planet, pos in planet_positions.items():
-    all_data_df[[f"{planet}_ELONG_Zodiac_signs", f"{planet}_ELONG_Zodiac_sign_element", f"{planet}_ELONG_Zodiac_degree"]] = all_data_df[pos].apply(zodiac_sign).apply(pd.Series)
+# Define a list of all planets and points of interest
+planets_and_points = [
+    *planet_positions.keys(),
+    'Moon_North_Node_ELONG',
+    'Moon_South_Node_ELONG',
+    'Lilith_ELONG',
+    'Selena_ELONG',
+    'ASC',
+    'MC',
+    'Year_Degree'
+]
 
-all_data_df[['Moon_North_Node_ELONG_Zodiac_signs', 'Moon_North_Node_ELONG_Zodiac_sign_element', 'Moon_North_Node_ELONG_Zodiac_degree']] = all_data_df['Moon_North_Node_ELONG'].apply(zodiac_sign)
-all_data_df[['Moon_South_Node_ELONG_Zodiac_signs', 'Moon_South_Node_ELONG_Zodiac_sign_element', 'Moon_South_Node_ELONG_Zodiac_degree']] = all_data_df['Moon_South_Node_ELONG'].apply(zodiac_sign)
-all_data_df[['Lilith_ELONG_Zodiac_signs', 'Lilith_ELONG_Zodiac_sign_element', 'Lilith_ELONG_Zodiac_degree']] = all_data_df['Lilith_ELONG'].apply(zodiac_sign)
-all_data_df[['Selena_ELONG_Zodiac_signs', 'Selena_ELONG_Zodiac_sign_element', 'Selena_ELONG_Zodiac_degree']] = all_data_df['Selena_ELONG'].apply(zodiac_sign)
-all_data_df[['ASC_Zodiac_signs', 'ASC_Zodiac_sign_element', 'ASC_Zodiac_degree']] = all_data_df['ASC'].apply(zodiac_sign)
-all_data_df[['MC_Zodiac_signs', 'MC_Zodiac_sign_element', 'MC_Zodiac_degree']] = all_data_df['MC'].apply(zodiac_sign)
-all_data_df[['Year_Zodiac_signs', 'Year_Zodiac_sign_element', 'Year_Zodiac_degree']] = all_data_df['Year_Degree'].apply(zodiac_sign)
+# Loop through the list and apply the zodiac_sign function
+for item in planets_and_points:
+    all_data_df[[f"{item}_Zodiac_signs", f"{item}_Zodiac_sign_element", f"{item}_Zodiac_degree"]] = all_data_df[item].apply(zodiac_sign)
 
-#命宮計算
+# Calculate Life_sign and Life_sign_degree
 all_data_df['Life_sign'] = all_data_df['ASC_Zodiac_signs']
 all_data_df['Life_sign_degree'] = all_data_df['Sun_ELONG_Zodiac_degree']
 
@@ -577,8 +574,8 @@ def zodiac_sign_to_starting_degree(zodiac_sign):
         "Aries_Fire": 0,
         "Taurus_Metal": 30,
         "Gemini_Water": 60,
-        "Cancer_Moon_element": 90,
-        "Leo_Sun_element": 120,
+        "Cancer_Moon": 90,
+        "Leo_Sun": 120,
         "Virgo_Water": 150,
         "Libra_Metal": 180,
         "Scorpio_Fire": 210,
@@ -586,47 +583,20 @@ def zodiac_sign_to_starting_degree(zodiac_sign):
         "Capricorn_Earth": 270,
         "Aquarius_Earth": 300,
         "Pisces_Wood": 330
-    }
+        }
     return zodiac_degrees[zodiac_sign]
   
 
-# 將命宮Life_sign轉換為起始度數，然後將其與Life_sign_degree相加以獲得360度制
+# Calculate Life_degree
 all_data_df['Life_degree'] = all_data_df['Life_sign'].apply(zodiac_sign_to_starting_degree) + all_data_df['Life_sign_degree']
 
-all_data_df['Life_degree'] = all_data_df['Life_sign'].apply(zodiac_sign_to_starting_degree) + all_data_df['Life_sign_degree']
+# Calculate mansion_position for all planets and points of interest, including Life_degree
+for item in planets_and_points + ['Life_degree']:
+    all_data_df[[f"{item}_Mansion_positions", f"{item}_Mansion_degree", f"{item}_Mansion_element"]] = all_data_df[item].apply(mansion_position)
 
-# 獲取行星所在的宮位和度數
+# Calculate real_astronomy_boundaries for all planets and points of interest, excluding Year_Degree
+for item in planets_and_points[:-1]:
+    all_data_df[[f"{item}_Astronomy_boundary", f"{item}_Astronomy_degree"]] = all_data_df[item].apply(real_astronomy_boundaries)
 
-for planet, pos in planet_positions.items():
-    all_data_df[[f"{planet}_ELONG_Mansion_positions", f"{planet}_ELONG_Mansion_degree", f"{planet}_ELONG_Mansion_element"]] = all_data_df[pos].apply(mansion_position)
-
-
-all_data_df[['Moon_North_Node_ELONG_Mansion_positions', 'Moon_North_Node_ELONG_Mansion_degree','Moon_North_Node_ELONG_Mansion_element' ]] = all_data_df['Moon_North_Node_ELONG'].apply(mansion_position)
-all_data_df[['Moon_South_Node_ELONG_Mansion_positions', 'Moon_South_Node_ELONG_Mansion_degree','Moon_Sorth_Node_ELONG_Mansion_element']] = all_data_df['Moon_South_Node_ELONG'].apply(mansion_position)
-all_data_df[['Lilith_ELONG_Mansion_positions', 'Lilith_ELONG_Mansion_degree', 'Lilith_ELONG_Mansion_element']] = all_data_df['Lilith_ELONG'].apply(mansion_position)
-all_data_df[['Selena_ELONG_Mansion_positions', 'Selena_ELONG_Mansion_degree', 'Selena_ELONG_Mansion_element']] = all_data_df['Selena_ELONG'].apply(mansion_position)
-all_data_df[['ASC_Mansion_positions', 'ASC_Mansion_degree', 'ASC_Mansion_element']] = all_data_df['ASC'].apply(mansion_position)
-all_data_df[['MC_Mansion_positions', 'MC_Mansion_degree', 'MC_Mansion_element']] = all_data_df['MC'].apply(mansion_position)
-all_data_df[['Year_Mansion_positions', 'Year_Mansion_degree', 'Year_Mansion_element']] = all_data_df['Year_Degree'].apply(mansion_position)
-
-
-#將Life_degree轉換成命度
-all_data_df[['Life_Mansion_positions', 'Life_Mansion_degree', 'Life_Mansion_element']] = all_data_df['Life_degree'].apply(mansion_position)
-
-
-# 獲取行星所在的區域和度數
-for planet, pos in planet_positions.items():
-    all_data_df[[f"{planet}_ELONG_Astronomy_boundary", f"{planet}_Astronomy_degree"]] = all_data_df[pos].apply(real_astronomy_boundaries)
-
-all_data_df[['Moon_North_Node_ELONG_Astronomy_boundary', 'Moon_North_Node_ELONG_Astronomy_degree']] = all_data_df['Moon_North_Node_ELONG'].apply(real_astronomy_boundaries)
-all_data_df[['Moon_South_Node_ELONG_Astronomy_boundary', 'Moon_South_Node_ELONG_Astronomy_degree']] = all_data_df['Moon_South_Node_ELONG'].apply(real_astronomy_boundaries)
-all_data_df[['Lilith_ELONG_Astronomy_boundary', 'Lilith_ELONG_Astronomy_degree']] = all_data_df['Lilith_ELONG'].apply(real_astronomy_boundaries)
-all_data_df[['Selena_ELONG_Astronomy_boundary', 'Selena_ELONG_Astronomy_degree']] = all_data_df['Selena_ELONG'].apply(real_astronomy_boundaries)
-all_data_df[['ASC_Astronomy_boundary', 'ASC_Astronomy_degree']] = all_data_df['ASC'].apply(real_astronomy_boundaries)
-all_data_df[['MC_Astronomy_boundary', 'MC_Astronomy_degree']] = all_data_df['MC'].apply(real_astronomy_boundaries)
-
-
-#print(all_data)
+# Export the DataFrame to a CSV file
 all_data_df.to_csv("/Users/jacky/Desktop/EXPORT_ALL_DATA_Y2006to2023.csv", index=False)
-
-
