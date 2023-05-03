@@ -279,7 +279,6 @@ combined_df = pd.concat([results_df, conjunction_df], ignore_index=True)
 combined_df.sort_values(by='Time', inplace=True)
 
 
-combined_df.drop_duplicates(subset=['DateTime(UTC)'], inplace=True)
 
 # 保存结果到 CSV 文件
 #print(combined_df)
