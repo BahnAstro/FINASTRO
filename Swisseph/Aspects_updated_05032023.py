@@ -276,7 +276,9 @@ conjunction_df.rename(columns={'index': 'Time'}, inplace=True)
 combined_df = pd.concat([results_df, conjunction_df], ignore_index=True)
 
 # 按照 Time 列对结果进行排序
+combined_df['Time'] = pd.to_datetime(combined_df['Time'])
 combined_df.sort_values(by='Time', inplace=True)
+
 
 
 
