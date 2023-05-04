@@ -2,7 +2,7 @@ import pandas as pd
 from collections import defaultdict
 
 # 讀取CSV文件
-df = pd.read_csv("/Users/x/EXPORT_ALL_DATA_Y2006to2023_G4.csv")
+df = pd.read_csv("/Users/x/Desktop/EXPORT_ALL_DATA_Y2006to2023_G4.csv")
 
 # 預先定義的角度
 angles = [0, 30, 45, 60, 90, 120, 144, 150, 180, 240, 270, 300, 330]
@@ -252,7 +252,7 @@ for time, time_data in results.items():
         results[time][aspect_key] = unique_aspects_str
 
         # Add counts to results
-        count_key = aspect_key.replace("_aspects", "_apsects_Count")
+        count_key = aspect_key.replace("_aspects", "_aspects_Count")
         aspect_count = float(len(aspects_counts[time][aspect_key]))
         results[time][count_key] = aspect_count
 
@@ -275,14 +275,17 @@ conjunction_df.rename(columns={'index': 'Time'}, inplace=True)
 # 合併兩個 DataFrame
 combined_df = pd.concat([results_df, conjunction_df], ignore_index=True)
 
-# 按照 Time 列对结果进行排序
+# 按照 Time 列對結果進行排序
 combined_df['Time'] = pd.to_datetime(combined_df['Time'])
 combined_df.sort_values(by='Time', inplace=True)
 
+# 刪除重複的行
+#combined_df.drop_duplicates(subset=['Time'], inplace=True)
 
 
 
 # 保存结果到 CSV 文件
 #print(combined_df)
 
-combined_df.to_csv('/Users/x/aspects_results_2006to2023_G4.csv', index=False)
+# 保存結果到 CSV 文件
+combined_df.to_csv('/Users/x/Desktop/aspects_results_2006to2023.csv', index=False)
