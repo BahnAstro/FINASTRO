@@ -3,7 +3,6 @@ from collections import defaultdict
 
 # 讀取CSV文件
 df = pd.read_csv("/Users/x/Desktop/EXPORT_ALL_DATA_Y2006to2023_G4.csv")
-
 # 預先定義的角度
 angles = [0, 30, 45, 60, 90, 120, 144, 150, 180, 240, 270, 300, 330]
 
@@ -273,11 +272,12 @@ conjunction_df.reset_index(inplace=True)
 conjunction_df.rename(columns={'index': 'Time'}, inplace=True)
 
 # 合併兩個 DataFrame
-combined_df = pd.concat([results_df, conjunction_df], ignore_index=True)
+combined_df = pd.merge(results_df, conjunction_df, on='Time', how='outer')
 
 # 按照 Time 列對結果進行排序
 combined_df['Time'] = pd.to_datetime(combined_df['Time'])
 combined_df.sort_values(by='Time', inplace=True)
+
 
 # 刪除重複的行
 #combined_df.drop_duplicates(subset=['Time'], inplace=True)
